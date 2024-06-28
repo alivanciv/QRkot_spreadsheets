@@ -1,0 +1,19 @@
+Generic single-database configuration with an async dbapi.
+
+## Инструкции
+Команды выполняются в активированном виртуально окружении 
+
+Иницирование библиотеки и создание диретории
+alimbic init
+
+Создание файла миграции на основе созданых в проекте моделей
+alembic revision -m 'some comment' --autogenerate
+
+после создания файла миграций обязательно откройте его /alembic/version/FILE
+и проверьте корректность сгенерированного Команды
+
+Создать БД / применить миграции
+alembic upgrade head
+
+Откатить предыдущие миграции
+alembic downgrade head
