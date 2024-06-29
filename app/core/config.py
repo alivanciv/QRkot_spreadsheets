@@ -12,7 +12,7 @@ class Settings(BaseSettings):
         'на корм оставшимся без попечения кошкам — на любые цели, '
         'связанные с поддержкой кошачьей популяции.'
     )
-    database_url: str = 'sqlite+aiosqlite:///./fastapi.db'
+    database_url: str = 'sqlite+aiosqlite:///./cat_charity_fund.db'
     secret: str = 'SECRET'
     first_superuser_email: Optional[EmailStr] = None
     first_superuser_password: Optional[str] = None

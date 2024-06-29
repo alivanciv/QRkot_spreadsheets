@@ -1,12 +1,11 @@
-from datetime import datetime
 from typing import Optional, Union
 
-from sqlalchemy import select, update, extract
+from sqlalchemy import select, extract
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.crud.base import CRUDBase
 from app.models import CharityProject
-from app.crud.utils import time_format
+from app.services.utils import time_format
 
 
 class CRUDCharityProject(CRUDBase):
@@ -21,22 +20,6 @@ class CRUDCharityProject(CRUDBase):
             )
         )
         return db_project_id.scalars().first()
-
-    async def close_project(
-            self,
-            project: CharityProject,
-            session: AsyncSession,
-    ) -> None:
-        stmt = (
-            update(project)
-            .values(
-                fully_invested=True,
-                close_date=datetime.now()
-            )
-        )
-        await session.execute(stmt)
-        await session.commit()
-        await session.refresh(project)
 
     async def get_projects_by_completion_rate(
             self,

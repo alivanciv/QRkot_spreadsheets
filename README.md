@@ -9,7 +9,7 @@
 Клонировать репозиторий и перейти в него в командной строке:
 
 ```
-git clone 
+git clone git@github.com:alivanciv/QRkot_spreadsheets.git
 ```
 
 ```
@@ -42,6 +42,11 @@ python3 -m pip install --upgrade pip
 
 ```
 pip install -r requirements.txt
+```
+
+Проведите операции с БД и миграциями в Alembic
+```
+please read ./alembic/README for more informatino
 ```
 
 Запустить проект:

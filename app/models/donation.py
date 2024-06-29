@@ -10,3 +10,9 @@ class Donation(Base, BaseModel):
         Integer,
         ForeignKey('user.id', name='fk_donation_user_id_user')
     )
+
+    def __repr__(self):
+        return (
+            f'Пожертвование - {super().__repr__()}\n'
+            f'{self.comment}'
+        )

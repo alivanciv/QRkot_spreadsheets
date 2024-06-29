@@ -7,12 +7,13 @@ from pydantic import (
 
 
 class CharityProjectBase(BaseModel):
-    name: str = Field(..., min_length=1, max_length=100)
+    name: str = Field(..., max_length=100)
     description: str
     full_amount: PositiveInt
 
     class Config:
         extra = Extra.forbid
+        min_anystr_length = 1
 
     @validator('name')
     def name_cannot_be_null(cls, name):
@@ -46,7 +47,7 @@ class CharityProjectCreate(CharityProjectBase):
 
 
 class CharityProjectUpdate(CharityProjectBase):
-    name: Optional[str] = Field(min_length=1, max_length=100)
+    name: Optional[str] = Field(max_length=100)
     description: Optional[str]
     full_amount: Optional[PositiveInt]
 

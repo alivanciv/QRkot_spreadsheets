@@ -3,7 +3,7 @@ from datetime import datetime
 from typing import Optional
 
 from fastapi.encoders import jsonable_encoder
-from sqlalchemy import select
+from sqlalchemy import select, asc, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models import User
@@ -37,16 +37,19 @@ class CRUDBase:
             self,
             obj_in,
             session: AsyncSession,
-            user: Optional[User] = None
+            user: Optional[User] = None,
+            skip_commit: bool = False
     ):
         obj_in_data = obj_in.dict()
         if user is not None:
             obj_in_data['user_id'] = user.id
         obj_in_data['create_date'] = datetime.now()
+        obj_in_data['invested_amount'] = 0
         db_obj = self.model(**obj_in_data)
         session.add(db_obj)
-        await session.commit()
-        await session.refresh(db_obj)
+        if not skip_commit:
+            await session.commit()
+            await session.refresh(db_obj)
         return db_obj
 
     async def update(
@@ -73,3 +76,30 @@ class CRUDBase:
         await session.delete(db_obj)
         await session.commit()
         return db_obj
+
+    async def get_sorted_open(self, session: AsyncSession):
+        spread_among_objects = await session.execute(
+            select(self.model)
+            .where(self.model.fully_invested.is_(False))
+            # Сортировка по ID для тестов, там у созданых объектов одна дата
+            # Сортируя по дате, тесты не проходят, изначально так и делал
+            .order_by(asc(self.model.id))
+        )
+        return spread_among_objects.scalars().all()
+
+    async def close(
+            self,
+            db_obj,
+            session: AsyncSession,
+    ) -> None:
+        stmt = (
+            update(db_obj.__class__)
+            .where(db_obj.__class__.id == db_obj.id)
+            .values(
+                fully_invested=True,
+                close_date=datetime.now()
+            )
+        )
+        await session.execute(stmt)
+        await session.commit()
+        await session.refresh(db_obj)

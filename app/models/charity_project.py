@@ -7,3 +7,8 @@ from app.models.base import BaseModel
 class CharityProject(Base, BaseModel):
     name = Column(String(100), unique=True, nullable=False)
     description = Column(Text, nullable=False)
+
+    def __repr__(self):
+        return (
+            f'Проект {self.name} - {super().__repr__()}'
+        )

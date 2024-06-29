@@ -4,16 +4,17 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.user import current_superuser
 from app.core.db import get_async_session
 from app.crud.charity_project import charity_project_crud
+from app.crud.donation import donation_crud
+from app.crud.base import CRUDBase
 from app.api.validators import (
     check_name_duplicate, check_charity_project_exists,
     check_invested_amount, check_project_is_open,
-    check_full_amount, check_project_to_be_closed
+    check_full_amount
 )
 from app.schemas.charity_project import (
     CharityProjectCreate, CharityProjectDB, CharityProjectUpdate
 )
-from app.crud.investment import process_investments
-from app.models.donation import Donation
+from app.services.investment import process_investments
 
 router = APIRouter()
 
@@ -30,8 +31,13 @@ async def create_new_charity_project(
 ):
     """Только для суперюзеров."""
     await check_name_duplicate(charity_project.name, session)
-    new_project = await charity_project_crud.create(charity_project, session)
-    await process_investments(new_project, Donation, session)
+    new_project = await charity_project_crud.create(
+        charity_project, session, skip_commit=True
+    )
+    open_donations = await donation_crud.get_sorted_open(session)
+    process_investments(new_project, open_donations)
+    await session.commit()
+    await session.refresh(new_project)
     return new_project
 
 
@@ -61,19 +67,16 @@ async def partially_update_charity_project(
     charity_project = await check_charity_project_exists(
         charity_project_id, session
     )
-    await check_project_is_open(charity_project, session)
+    check_project_is_open(charity_project)
     if obj_in.name is not None:
         await check_name_duplicate(obj_in.name, session)
     if obj_in.full_amount is not None:
-        await check_full_amount(
+        check_full_amount(
             charity_project,
             obj_in.full_amount,
-            session
         )
-        if await check_project_to_be_closed(
-            charity_project, obj_in.full_amount, session
-        ):
-            await charity_project_crud.close_project(charity_project, session)
+        if obj_in.full_amount == charity_project.invested_amount:
+            await charity_project_crud.close(charity_project, session)
     charity_project = await charity_project_crud.update(
         charity_project, obj_in, session
     )
@@ -94,7 +97,7 @@ async def remove_charity_project(
     charity_project = await check_charity_project_exists(
         charity_project_id, session
     )
-    await check_invested_amount(charity_project, session)
+    check_invested_amount(charity_project)
     charity_project = await charity_project_crud.remove(
         charity_project, session
     )

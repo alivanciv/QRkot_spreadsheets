@@ -36,9 +36,9 @@ async def check_charity_project_exists(
     return charity_project
 
 
-async def check_project_is_open(
+def check_project_is_open(
         project: int,
-        session: AsyncSession,
+
 ) -> None:
     if project.fully_invested:
         raise HTTPException(
@@ -47,9 +47,9 @@ async def check_project_is_open(
         )
 
 
-async def check_invested_amount(
+def check_invested_amount(
         project: int,
-        session: AsyncSession,
+
 ) -> None:
     if project.invested_amount > 0:
         raise HTTPException(
@@ -58,10 +58,10 @@ async def check_invested_amount(
         )
 
 
-async def check_full_amount(
+def check_full_amount(
         project: CharityProject,
         full_amount_in: int,
-        session: AsyncSession,
+
 ) -> None:
     if full_amount_in < project.invested_amount:
         raise HTTPException(
@@ -69,11 +69,3 @@ async def check_full_amount(
             detail='Нелья установить значение full_amount '
                    'меньше уже вложенной суммы.'
         )
-
-
-async def check_project_to_be_closed(
-        project: CharityProject,
-        full_amount_in: int,
-        session: AsyncSession,
-) -> None:
-    return full_amount_in < project.invested_amount
