@@ -5,7 +5,6 @@ from app.core.user import current_superuser
 from app.core.db import get_async_session
 from app.crud.charity_project import charity_project_crud
 from app.crud.donation import donation_crud
-from app.crud.base import CRUDBase
 from app.api.validators import (
     check_name_duplicate, check_charity_project_exists,
     check_invested_amount, check_project_is_open,
