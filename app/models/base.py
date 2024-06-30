@@ -10,11 +10,7 @@ class BaseModel:
             name="check_full_amont"
         ),
         CheckConstraint(
-            "invested_amount <= full_amount",
-            name="check_amounts"
-        ),
-        CheckConstraint(
-            "invested_amount >= 0",
+            "0 <= invested_amount <= full_amount",
             name="check_invested_amount"
         ),
     )
@@ -25,9 +21,12 @@ class BaseModel:
     close_date = Column(DateTime, default=None)
 
     def __repr__(self):
-        return (
+        base_repr = (
             f'дата создания: {self.create_date}, '
             f'сумма: {self.full_amount}, '
-            f'инвестированно: {self.invested_amount}, '
-            f'дата закрытия: {self.close_date}' if self.fully_invested else ''
+            f'инвестированно: {self.invested_amount}'
+        )
+        return (
+            base_repr if not self.fully_invested
+            else ', '.join([base_repr, f'дата закрытия: {self.close_date}'])
         )

@@ -12,8 +12,8 @@ BODY = dict(
         sheetId=0,
         title='Лист1',
         gridProperties=dict(
-            rowCount='{row_count}',
-            columnCount='{column_count}',
+            rowCount=ROW_COUNT,
+            columnCount=COLUMN_COUNT,
         )
     ))]
 )

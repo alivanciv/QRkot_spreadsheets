@@ -1,7 +1,11 @@
 from datetime import datetime
 
+from app.crud.base import CRUDBase
 
-def process_investments(target, sources: list) -> list:
+
+def process_investments(
+        target: CRUDBase, sources: list[CRUDBase]
+) -> list[CRUDBase]:
     updated_sources = []
     for source in sources:
         if target.fully_invested:

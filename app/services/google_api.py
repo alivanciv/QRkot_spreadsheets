@@ -5,18 +5,14 @@ from app.core.config import settings
 from app.services.utils import (
     spreadsheet_body_preset,
     table_header_preset,
-    get_rows_count,
-    get_columns_count
+    get_table_size,
 )
 from app.services.constant import FORMAT, ROW_COUNT, COLUMN_COUNT
 
 
 async def spreadsheets_create(wrapper_services: Aiogoogle) -> str:
-    now_date_time = datetime.now().strftime(FORMAT)
     service = await wrapper_services.discover('sheets', 'v4')
-    spreadsheet_body = spreadsheet_body_preset(
-        now_date_time, ROW_COUNT, COLUMN_COUNT
-    )
+    spreadsheet_body = spreadsheet_body_preset(datetime.now().strftime(FORMAT))
     response = await wrapper_services.as_service_account(
         service.spreadsheets.create(json=spreadsheet_body)
     )
@@ -44,22 +40,20 @@ async def spreadsheets_update_value(
         projects: list,
         wrapper_services: Aiogoogle
 ) -> None:
-    now_date_time = datetime.now().strftime(FORMAT)
     service = await wrapper_services.discover('sheets', 'v4')
     table_values = [
-        *table_header_preset(now_date_time),
+        *table_header_preset(datetime.now().strftime(FORMAT)),
         *[list(map(
             str,
             [proj['name'], proj['accumulation_time'], proj['description']]
         )) for proj in projects],
     ]
-    columns_count = get_columns_count(table_values)
+    rows_count, columns_count = get_table_size(table_values)
     if columns_count > COLUMN_COUNT:
         raise excs.ValidationError(
             'На вывод пришло больше колонок, чем предусмотрено: '
             f'{columns_count} > {COLUMN_COUNT}'
         )
-    rows_count = get_rows_count(table_values)
     if rows_count > ROW_COUNT:
         raise excs.ValidationError(
             'На вывод пришло больше строк, чем предусмотрено: '

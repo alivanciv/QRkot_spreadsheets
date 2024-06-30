@@ -44,16 +44,6 @@ python3 -m pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-Иницирование библиотеки и создание диретории alembic
-```
-alembic init
-```
-
-Создание файла миграции на основе созданых в проекте моделей
-```
-alembic revision -m 'some comment' --autogenerate
-```
-
 Создать БД / применить миграции
 ```
 alembic upgrade head

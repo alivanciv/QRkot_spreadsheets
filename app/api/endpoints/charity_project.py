@@ -33,11 +33,12 @@ async def create_new_charity_project(
     new_project = await charity_project_crud.create(
         charity_project, session, skip_commit=True
     )
-    updated_donations = process_investments(
-        new_project,
-        await donation_crud.get_sorted_open(session)
+    session.add_all(
+        process_investments(
+            new_project,
+            await donation_crud.get_sorted_open(session)
+        )
     )
-    session.add_all(updated_donations)
     await session.commit()
     await session.refresh(new_project)
     return new_project

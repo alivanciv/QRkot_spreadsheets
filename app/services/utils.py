@@ -22,22 +22,10 @@ def time_format(delta: timedelta):
 
 def spreadsheet_body_preset(
         now_date_time: str,
-        row_count: int,
-        column_count: int
 ) -> dict:
     body = copy.deepcopy(BODY)
     title = body['properties']['title'].format(now_date_time=now_date_time)
     body['properties']['title'] = title
-    row = (
-        body['sheets'][0]['properties']['gridProperties']['rowCount']
-        .format(row_count=row_count)
-    )
-    body['sheets'][0]['properties']['gridProperties']['rowCount'] = int(row)
-    col = (
-        body['sheets'][0]['properties']['gridProperties']['columnCount']
-        .format(column_count=column_count)
-    )
-    body['sheets'][0]['properties']['gridProperties']['columnCount'] = int(col)
     return body
 
 
@@ -49,9 +37,7 @@ def table_header_preset(
     return header
 
 
-def get_rows_count(table_values: list) -> int:
-    return len(table_values)
-
-
-def get_columns_count(table_values: list) -> int:
-    return len(table_values[3])
+def get_table_size(table_values: list) -> tuple[int, int]:
+    rows_count = len(table_values)
+    columns_count = max([len(table_values[i]) for i in range(rows_count)])
+    return (rows_count, columns_count)
