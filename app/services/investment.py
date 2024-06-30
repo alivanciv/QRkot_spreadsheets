@@ -1,12 +1,13 @@
 from datetime import datetime
+from typing import Union
 
 from app.models import Donation, CharityProject
 
 
 def process_investments(
-        target: Donation | CharityProject,
-        sources: list[Donation | CharityProject]
-) -> list[Donation | CharityProject]:
+        target: Union[Donation, CharityProject],
+        sources: list[Union[Donation, CharityProject]]
+) -> list[Union[Donation, CharityProject]]:
     updated_sources = []
     for source in sources:
         if target.fully_invested:
