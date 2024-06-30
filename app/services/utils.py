@@ -39,5 +39,5 @@ def table_header_preset(
 
 def get_table_size(table_values: list) -> tuple[int, int]:
     rows_count = len(table_values)
-    columns_count = max([len(table_values[i]) for i in range(rows_count)])
+    columns_count = max(map(len, table_values))
     return (rows_count, columns_count)

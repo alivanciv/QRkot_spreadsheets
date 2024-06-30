@@ -1,11 +1,12 @@
 from datetime import datetime
 
-from app.crud.base import CRUDBase
+from app.models import Donation, CharityProject
 
 
 def process_investments(
-        target: CRUDBase, sources: list[CRUDBase]
-) -> list[CRUDBase]:
+        target: Donation | CharityProject,
+        sources: list[Donation | CharityProject]
+) -> list[Donation | CharityProject]:
     updated_sources = []
     for source in sources:
         if target.fully_invested:
