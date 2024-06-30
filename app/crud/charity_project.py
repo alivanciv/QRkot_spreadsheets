@@ -32,7 +32,7 @@ class CRUDCharityProject(CRUDBase):
                 (extract('year', CharityProject.close_date) -
                  extract('year', CharityProject.create_date)),
                 (extract('month', CharityProject.close_date) -
-                 extract('minute', CharityProject.create_date)),
+                 extract('month', CharityProject.create_date)),
                 (extract('day', CharityProject.close_date) -
                  extract('day', CharityProject.create_date)),
                 (extract('hour', CharityProject.close_date) -
