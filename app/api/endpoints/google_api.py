@@ -1,6 +1,6 @@
 from http import HTTPStatus
 
-from aiogoogle import Aiogoogle
+from aiogoogle import Aiogoogle, excs
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -29,18 +29,17 @@ async def get_report(
     projects = await charity_project_crud.get_projects_by_completion_rate(
         session
     )
-    try:
-        spreadsheet_id, spreadsheet_url = await spreadsheets_create(
+    spreadsheet_id, spreadsheet_url = await spreadsheets_create(
             wrapper_services
         )
-        await set_user_permissions(spreadsheet_id, wrapper_services)
-
+    await set_user_permissions(spreadsheet_id, wrapper_services)
+    try:
         await spreadsheets_update_value(
             spreadsheet_id,
             projects,
             wrapper_services
         )
-    except Exception as error:
+    except excs.ValidationError as error:
         raise HTTPException(
             status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
             detail=error

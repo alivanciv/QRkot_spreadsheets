@@ -1,8 +1,13 @@
 from datetime import datetime
 
-from aiogoogle import Aiogoogle
+from aiogoogle import Aiogoogle, excs
 from app.core.config import settings
-from app.services.utils import spreadsheet_body_preset, table_header_preset
+from app.services.utils import (
+    spreadsheet_body_preset,
+    table_header_preset,
+    get_rows_count,
+    get_columns_count
+)
 from app.services.constant import FORMAT, ROW_COUNT, COLUMN_COUNT
 
 
@@ -48,12 +53,18 @@ async def spreadsheets_update_value(
             [proj['name'], proj['accumulation_time'], proj['description']]
         )) for proj in projects],
     ]
-    if len(table_values) > ROW_COUNT:
-        raise Exception(
-            'На вывод пришло больше строк, чем предусмотрено: '
-            f'{len(table_values) > ROW_COUNT}'
+    columns_count = get_columns_count(table_values)
+    if columns_count > COLUMN_COUNT:
+        raise excs.ValidationError(
+            'На вывод пришло больше колонок, чем предусмотрено: '
+            f'{columns_count} > {COLUMN_COUNT}'
         )
-
+    rows_count = get_rows_count(table_values)
+    if rows_count > ROW_COUNT:
+        raise excs.ValidationError(
+            'На вывод пришло больше строк, чем предусмотрено: '
+            f'{rows_count} > {ROW_COUNT}'
+        )
     update_body = {
         'majorDimension': 'ROWS',
         'values': table_values
@@ -61,7 +72,7 @@ async def spreadsheets_update_value(
     await wrapper_services.as_service_account(
         service.spreadsheets.values.update(
             spreadsheetId=spreadsheet_id,
-            range=f'R1C1:R{ROW_COUNT}C{COLUMN_COUNT}',
+            range=f'R1C1:R{rows_count}C{columns_count}',
             valueInputOption='USER_ENTERED',
             json=update_body
         )

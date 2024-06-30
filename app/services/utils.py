@@ -1,4 +1,7 @@
 from datetime import timedelta
+import copy
+
+from app.services.constant import BODY, HEADER
 
 
 def time_format(delta: timedelta):
@@ -22,28 +25,33 @@ def spreadsheet_body_preset(
         row_count: int,
         column_count: int
 ) -> dict:
-    return dict(
-        properties=dict(
-            title=f'Отчет от {now_date_time}',
-            locale='ru_RU',
-        ),
-        sheets=[dict(properties=dict(
-            sheetType='GRID',
-            sheetId=0,
-            title='Лист1',
-            gridProperties=dict(
-                rowCount=row_count,
-                columnCount=column_count,
-            )
-        ))]
+    body = copy.deepcopy(BODY)
+    title = body['properties']['title'].format(now_date_time=now_date_time)
+    body['properties']['title'] = title
+    row = (
+        body['sheets'][0]['properties']['gridProperties']['rowCount']
+        .format(row_count=row_count)
     )
+    body['sheets'][0]['properties']['gridProperties']['rowCount'] = int(row)
+    col = (
+        body['sheets'][0]['properties']['gridProperties']['columnCount']
+        .format(column_count=column_count)
+    )
+    body['sheets'][0]['properties']['gridProperties']['columnCount'] = int(col)
+    return body
 
 
 def table_header_preset(
         now_date_time: str,
 ) -> list:
-    return [
-        ['Отчёт от', now_date_time],
-        ['Топ проектов по скорости закрытия'],
-        ['Название проекта', 'Время сбора', 'Описание']
-    ]
+    header = copy.deepcopy(HEADER)
+    header[0][1] = header[0][1].format(now_date_time=now_date_time)
+    return header
+
+
+def get_rows_count(table_values: list) -> int:
+    return len(table_values)
+
+
+def get_columns_count(table_values: list) -> int:
+    return len(table_values[3])
